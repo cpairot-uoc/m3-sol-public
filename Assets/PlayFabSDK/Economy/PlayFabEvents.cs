@@ -53,8 +53,6 @@ namespace PlayFab.Events
         public event PlayFabResultEvent<GetItemReviewSummaryResponse> OnEconomyGetItemReviewSummaryResultEvent;
         public event PlayFabRequestEvent<GetItemsRequest> OnEconomyGetItemsRequestEvent;
         public event PlayFabResultEvent<GetItemsResponse> OnEconomyGetItemsResultEvent;
-        public event PlayFabRequestEvent<GetMicrosoftStoreAccessTokensRequest> OnEconomyGetMicrosoftStoreAccessTokensRequestEvent;
-        public event PlayFabResultEvent<GetMicrosoftStoreAccessTokensResponse> OnEconomyGetMicrosoftStoreAccessTokensResultEvent;
         public event PlayFabRequestEvent<GetTransactionHistoryRequest> OnEconomyGetTransactionHistoryRequestEvent;
         public event PlayFabResultEvent<GetTransactionHistoryResponse> OnEconomyGetTransactionHistoryResultEvent;
         public event PlayFabRequestEvent<PublishDraftItemRequest> OnEconomyPublishDraftItemRequestEvent;
@@ -63,6 +61,8 @@ namespace PlayFab.Events
         public event PlayFabResultEvent<PurchaseInventoryItemsResponse> OnEconomyPurchaseInventoryItemsResultEvent;
         public event PlayFabRequestEvent<RedeemAppleAppStoreInventoryItemsRequest> OnEconomyRedeemAppleAppStoreInventoryItemsRequestEvent;
         public event PlayFabResultEvent<RedeemAppleAppStoreInventoryItemsResponse> OnEconomyRedeemAppleAppStoreInventoryItemsResultEvent;
+        public event PlayFabRequestEvent<RedeemAppleAppStoreWithJwsInventoryItemsRequest> OnEconomyRedeemAppleAppStoreWithJwsInventoryItemsRequestEvent;
+        public event PlayFabResultEvent<RedeemAppleAppStoreWithJwsInventoryItemsResponse> OnEconomyRedeemAppleAppStoreWithJwsInventoryItemsResultEvent;
         public event PlayFabRequestEvent<RedeemGooglePlayInventoryItemsRequest> OnEconomyRedeemGooglePlayInventoryItemsRequestEvent;
         public event PlayFabResultEvent<RedeemGooglePlayInventoryItemsResponse> OnEconomyRedeemGooglePlayInventoryItemsResultEvent;
         public event PlayFabRequestEvent<RedeemMicrosoftStoreInventoryItemsRequest> OnEconomyRedeemMicrosoftStoreInventoryItemsRequestEvent;

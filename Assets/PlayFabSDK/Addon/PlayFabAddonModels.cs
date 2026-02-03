@@ -9,9 +9,21 @@ namespace PlayFab.AddonModels
     public class CreateOrUpdateAppleRequest : PlayFabRequestCommon
     {
         /// <summary>
+        /// Allow validation of receipts from the Apple production environment. Required for app releases.
+        /// </summary>
+        public bool? AllowProduction;
+        /// <summary>
+        /// Allow validation of receipts from the Apple sandbox environment. Typically used while testing.
+        /// </summary>
+        public bool? AllowSandbox;
+        /// <summary>
         /// iOS App Bundle ID obtained after setting up your app in the App Store.
         /// </summary>
         public string AppBundleId;
+        /// <summary>
+        /// AppId obtained after setting up your app in the App Store.
+        /// </summary>
+        public string AppId;
         /// <summary>
         /// iOS App Shared Secret obtained after setting up your app in the App Store.
         /// </summary>
@@ -33,6 +45,18 @@ namespace PlayFab.AddonModels
         /// case where Apple rotates their signing keys.
         /// </summary>
         public bool? IgnoreExpirationDate;
+        /// <summary>
+        /// IssuerId obtained after setting up your app in the App Store.
+        /// </summary>
+        public string IssuerId;
+        /// <summary>
+        /// KeyId obtained after setting up your app in the App Store.
+        /// </summary>
+        public string KeyId;
+        /// <summary>
+        /// PrivateKey obtained after setting up your app in the App Store.
+        /// </summary>
+        public string PrivateKey;
         /// <summary>
         /// Require secure authentication only for this app.
         /// </summary>
@@ -295,6 +319,40 @@ namespace PlayFab.AddonModels
     }
 
     [Serializable]
+    public class CreateOrUpdateToxModRequest : PlayFabRequestCommon
+    {
+        /// <summary>
+        /// Account ID obtained after creating your ToxMod developer account.
+        /// </summary>
+        public string AccountId;
+        /// <summary>
+        /// Account Key obtained after creating your ToxMod developer account.
+        /// </summary>
+        public string AccountKey;
+        /// <summary>
+        /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
+        /// </summary>
+        public Dictionary<string,string> CustomTags;
+        /// <summary>
+        /// Whether ToxMod Addon is Enabled by Title.
+        /// </summary>
+        public bool Enabled;
+        /// <summary>
+        /// The optional entity to perform this action on. Defaults to the currently logged in entity.
+        /// </summary>
+        public EntityKey Entity;
+        /// <summary>
+        /// If an error should be returned if the addon already exists.
+        /// </summary>
+        public bool? ErrorIfExists;
+    }
+
+    [Serializable]
+    public class CreateOrUpdateToxModResponse : PlayFabResultCommon
+    {
+    }
+
+    [Serializable]
     public class CreateOrUpdateTwitchRequest : PlayFabRequestCommon
     {
         /// <summary>
@@ -465,6 +523,24 @@ namespace PlayFab.AddonModels
 
     [Serializable]
     public class DeleteSteamResponse : PlayFabResultCommon
+    {
+    }
+
+    [Serializable]
+    public class DeleteToxModRequest : PlayFabRequestCommon
+    {
+        /// <summary>
+        /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
+        /// </summary>
+        public Dictionary<string,string> CustomTags;
+        /// <summary>
+        /// The optional entity to perform this action on. Defaults to the currently logged in entity.
+        /// </summary>
+        public EntityKey Entity;
+    }
+
+    [Serializable]
+    public class DeleteToxModResponse : PlayFabResultCommon
     {
     }
 
@@ -745,6 +821,40 @@ namespace PlayFab.AddonModels
         /// Use Steam Payments sandbox endpoint for test transactions.
         /// </summary>
         public bool? UseSandbox;
+    }
+
+    [Serializable]
+    public class GetToxModRequest : PlayFabRequestCommon
+    {
+        /// <summary>
+        /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
+        /// </summary>
+        public Dictionary<string,string> CustomTags;
+        /// <summary>
+        /// The optional entity to perform this action on. Defaults to the currently logged in entity.
+        /// </summary>
+        public EntityKey Entity;
+    }
+
+    [Serializable]
+    public class GetToxModResponse : PlayFabResultCommon
+    {
+        /// <summary>
+        /// Account ID obtained after creating your Twitch developer account.
+        /// </summary>
+        public string AccountId;
+        /// <summary>
+        /// Account Key obtained after creating your Twitch developer account.
+        /// </summary>
+        public string AccountKey;
+        /// <summary>
+        /// Addon status.
+        /// </summary>
+        public bool Created;
+        /// <summary>
+        /// Whether the ToxMod Addon is enabled by the title.
+        /// </summary>
+        public bool Enabled;
     }
 
     [Serializable]

@@ -4,34 +4,38 @@ using PlayFab.ClientModels;
 using PlayFab.Json;
 using UnityEngine;
 
+/// <summary>
+/// Manages PlayFab integration for user authentication and player statistics.
+/// This class follows a singleton pattern to provide a centralized point of access.
+/// </summary>
 public class PlayFabController : MonoBehaviour
 {
     public static PlayFabController PFC;
+
+    private const string EmailKey = "EMAIL";
+    private const string PasswordKey = "PASSWORD";
 
     private string userEmail;                   // User's e-mail address
     private string userPassword;                // User's password
     private string username;                    // User's name
     public GameObject loginPanel;               // Login panel reference
 
-    private void OnEnable()
+    private void Awake()
     {
-        if (PlayFabController.PFC == null)
+        if (PFC == null)
         {
-            PlayFabController.PFC = this;
+            PFC = this;
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
-            if (PlayFabController.PFC != this)
-            {
-                Destroy (this.gameObject);
-            }
+            Destroy(gameObject);
         }
-        DontDestroyOnLoad (this.gameObject);
     }
 
     public void Start()
     {
-        // Note: Setting title Id here can be skipped if you have set the value in Editor Extensions already.
+        // Note: Setting title ID here can be skipped if you have set the value in Editor Extensions already.
         if (string.IsNullOrEmpty(PlayFabSettings.staticSettings.TitleId))
         {
             PlayFabSettings.staticSettings.TitleId = "8F582"; // Please change this value to your own titleId from PlayFab Game Manager
@@ -44,13 +48,13 @@ public class PlayFabController : MonoBehaviour
         // This is used to delete the player's preferences
         // PlayerPrefs.DeleteAll();
 
-        // Autologin is performed if the "EMAIL" property is on Player Preferences
-        if (PlayerPrefs.HasKey ("EMAIL"))
+        // Autologin is performed if the EmailKey property is on Player Preferences
+        if (PlayerPrefs.HasKey (EmailKey))
         {
-            userEmail = PlayerPrefs.GetString("EMAIL");
-            userPassword = PlayerPrefs.GetString("PASSWORD");
+            userEmail = PlayerPrefs.GetString(EmailKey);
+            userPassword = PlayerPrefs.GetString(PasswordKey);
 
-            // To seriously login, we could use Android or iOS, but we are going to use the player's e-mail
+            // To really login, we could use Android or iOS, but we are going to use the player's e-mail
             var request = new LoginWithEmailAddressRequest { Email = userEmail, Password = userPassword };
             PlayFabClientAPI.LoginWithEmailAddress (request, OnLoginSuccess, OnLoginFailure);
 
@@ -58,15 +62,20 @@ public class PlayFabController : MonoBehaviour
         }
         else
         {
-            #if UNITY_ANDROID
-            var requestAndroid = new LoginWithAndroidDevideIDRequest { AndroidDeviceId = ReturnMobileID(), CreateAccount = true };
-            PlayFabClientAPI.LoginWithAndroidDeviceID (requestAndroid, OnLoginMobileSuccess, OnLoginMobileFailure);
-            #endif
-            #if UNITY_IOS
-            var requestIOS = new LoginWithIOSDevideIDRequest { DeviceId = ReturnMobileID(), CreateAccount = true };
-            PlayFabClientAPI.LoginWithIOSDeviceID (requestIOS, OnLoginMobileSuccess, OnLoginMobileFailure);
-            #endif 
+            LoginMobile();
         }
+    }
+
+    private void LoginMobile()
+    {
+        #if UNITY_ANDROID
+        var requestAndroid = new LoginWithAndroidDevideIDRequest { AndroidDeviceId = ReturnMobileID(), CreateAccount = true };
+        PlayFabClientAPI.LoginWithAndroidDeviceID (requestAndroid, OnLoginMobileSuccess, OnLoginMobileFailure);
+        #endif
+        #if UNITY_IOS
+        var requestIOS = new LoginWithIOSDevideIDRequest { DeviceId = ReturnMobileID(), CreateAccount = true };
+        PlayFabClientAPI.LoginWithIOSDeviceID (requestIOS, OnLoginMobileSuccess, OnLoginMobileFailure);
+        #endif 
     }
 
     #region Login
@@ -74,12 +83,12 @@ public class PlayFabController : MonoBehaviour
     // Method invoked when login is successful
     private void OnLoginSuccess (LoginResult result)
     {
-        PlayerPrefs.SetString ("EMAIL", userEmail);
-        PlayerPrefs.SetString ("PASSWORD", userPassword);
+        PlayerPrefs.SetString (EmailKey, userEmail);
+        PlayerPrefs.SetString (PasswordKey, userPassword);
         Debug.Log ("Storing " + userEmail + " credentials into Player Preferences.");
 
         // Disable login panel
-        loginPanel.SetActive (false);
+        if (loginPanel != null) loginPanel.SetActive(false);
 
         // Get player statistics
         GetStats();
@@ -89,7 +98,7 @@ public class PlayFabController : MonoBehaviour
     private void OnLoginMobileSuccess (LoginResult result)
     {
         // Disable login panel
-        loginPanel.SetActive (false);
+        if (loginPanel != null) loginPanel.SetActive(false);
 
         // Get player statistics
         GetStats();
@@ -99,12 +108,12 @@ public class PlayFabController : MonoBehaviour
     private void OnRegisterSuccess (RegisterPlayFabUserResult result)
     {
         // If user registration was successful, credentials are stored for future autologin
-        PlayerPrefs.SetString ("EMAIL", userEmail);
-        PlayerPrefs.SetString ("PASSWORD", userPassword);
+        PlayerPrefs.SetString (EmailKey, userEmail);
+        PlayerPrefs.SetString (PasswordKey, userPassword);
         Debug.Log ("Storing " + userEmail + " credentials into Player Preferences.");
 
         // Disable login panel
-        loginPanel.SetActive (false);
+        if (loginPanel != null) loginPanel.SetActive(false);
 
         // Get player statistics
         GetStats();
@@ -168,14 +177,14 @@ public class PlayFabController : MonoBehaviour
     #region PlayerStats
 
     public int playerLevel;                 // Player's level statistics
-    public int gameLevel;                   // Game'ls level statistics
+    public int gameLevel;                   // Game's level statistics
 
     public int playerHealth;                // Player's health statistics
     public int playerDamage;                // Player damage statistics
 
     public int playerHighScore;             // Player's high score
 
-    // Set player statistics via client (this method will only work if the "Allow client to post player statistics" is checked
+    // Set player statistics via the client (this method will only work if the "Allow client to post player statistics" is checked
     // on PlayFab Dashboard > Settings > API Features
     public void SetStats()
     {
@@ -201,34 +210,48 @@ public class PlayFabController : MonoBehaviour
     }
 
     // Method invoked when player statistics are received
-    public void OnGetStatistics (GetPlayerStatisticsResult result)
+    private void OnGetStatistics (GetPlayerStatisticsResult result)
     {
         Debug.Log ("Received the following Statistics:");
+
+        if (result.Statistics == null || result.Statistics.Count == 0)
+        {
+            Debug.Log("No statistics found for this player. Setting default values...");
+            
+            // Set default stats for new players
+            playerLevel = 1;
+            playerHealth = 100;
+            playerHighScore = 0;
+            gameLevel = 0;
+            playerDamage = 0;
+
+            // Update stats via cloud script to initialize them on the server
+            StartCloudUpdatePlayerStats();
+            return;
+        }
+        
+        // Dictionary to map statistic names to the corresponding fields
+        var statsMap = new Dictionary<string, System.Action<int>>
+        {
+            { "PlayerLevel", (val) => playerLevel = val },
+            { "GameLevel", (val) => gameLevel = val },
+            { "PlayerHealth", (val) => playerHealth = val },
+            { "PlayerDamage", (val) => playerDamage = val },
+            { "PlayerHighScore", (val) => playerHighScore = val }
+        };
+
         foreach (var eachStat in result.Statistics)
         {
             Debug.Log ("Statistic (" + eachStat.StatisticName + "): " + eachStat.Value);
-            switch (eachStat.StatisticName)
+            
+            if (statsMap.TryGetValue(eachStat.StatisticName, out var assignStat))
             {
-                case "PlayerLevel":
-                    playerLevel = eachStat.Value;
-                    break;
-                case "GameLevel":
-                    gameLevel = eachStat.Value;
-                    break;
-                case "PlayerHealth":
-                    playerHealth = eachStat.Value;
-                    break;
-                case "PlayerDamage":
-                    playerDamage = eachStat.Value;
-                    break;
-                case "PlayerHighScore":
-                    playerHighScore = eachStat.Value;
-                    break;
+                assignStat(eachStat.Value);
             }
         }
     }
 
-    // Update player statistics remotely (via cloud script)
+    // Update player statistics remotely (via a cloud script)
     public void StartCloudUpdatePlayerStats()
     {
         PlayFabClientAPI.ExecuteCloudScript (new ExecuteCloudScriptRequest()
@@ -239,11 +262,11 @@ public class PlayFabController : MonoBehaviour
         }, OnCloudUpdateStats, OnErrorShared);
     }
 
-    // Invoked when statistics have been updated via cloud script
+    // Invoked when statistics have been updated via a cloud script
     private static void OnCloudUpdateStats (ExecuteCloudScriptResult result)
     {
         // Cloud Script returns arbitrary results, so you have to evaluate them one step and one parameter at a time
-        Debug.Log (PlayFab.PluginManager.GetPlugin<ISerializerPlugin> (PluginContract.PlayFab_Serializer).SerializeObject (result.FunctionResult));
+        Debug.Log (PluginManager.GetPlugin<ISerializerPlugin> (PluginContract.PlayFab_Serializer).SerializeObject (result.FunctionResult));
         JsonObject jsonResult = (JsonObject) result.FunctionResult;
         object messageValue;
         jsonResult.TryGetValue ("messageValue", out messageValue); // note how "messageValue" directly corresponds to the JSON values set in Cloud Script

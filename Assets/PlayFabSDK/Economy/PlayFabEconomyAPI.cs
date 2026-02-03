@@ -8,7 +8,8 @@ using PlayFab.Internal;
 namespace PlayFab
 {
     /// <summary>
-    /// API methods for managing the catalog. Inventory manages in-game assets for any given entity.
+    /// API methods for managing the catalog. Inventory manages in-game assets for any given entity. API methods for managing
+    /// the versioned catalogs.
     /// </summary>
     public static class PlayFabEconomyAPI
     {
@@ -46,7 +47,7 @@ namespace PlayFab
         }
 
         /// <summary>
-        /// Creates a new item in the working catalog using provided metadata.
+        /// Creates a new item in the working catalog using provided metadata. Note: SAS tokens provided are valid for 1 hour.
         /// </summary>
         public static void CreateDraftItem(CreateDraftItemRequest request, Action<CreateDraftItemResponse> resultCallback, Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null)
         {
@@ -177,7 +178,8 @@ namespace PlayFab
         /// <summary>
         /// Retrieves an item from the working catalog. This item represents the current working state of the item. GetDraftItem
         /// does not work off a cache of the Catalog and should be used when trying to get recent item updates. However, please note
-        /// that item references data is cached and may take a few moments for changes to propagate.
+        /// that item references data is cached and may take a few moments for changes to propagate. Note: SAS tokens provided are
+        /// valid for 1 hour.
         /// </summary>
         public static void GetDraftItem(GetDraftItemRequest request, Action<GetDraftItemResponse> resultCallback, Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null)
         {
@@ -191,7 +193,8 @@ namespace PlayFab
 
         /// <summary>
         /// Retrieves a paginated list of the items from the draft catalog. Up to 50 IDs can be retrieved in a single request.
-        /// GetDraftItems does not work off a cache of the Catalog and should be used when trying to get recent item updates.
+        /// GetDraftItems does not work off a cache of the Catalog and should be used when trying to get recent item updates. Note:
+        /// SAS tokens provided are valid for 1 hour.
         /// </summary>
         public static void GetDraftItems(GetDraftItemsRequest request, Action<GetDraftItemsResponse> resultCallback, Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null)
         {
@@ -376,19 +379,6 @@ namespace PlayFab
         }
 
         /// <summary>
-        /// Gets the access tokens.
-        /// </summary>
-        public static void GetMicrosoftStoreAccessTokens(GetMicrosoftStoreAccessTokensRequest request, Action<GetMicrosoftStoreAccessTokensResponse> resultCallback, Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null)
-        {
-            var context = (request == null ? null : request.AuthenticationContext) ?? PlayFabSettings.staticPlayer;
-            var callSettings = PlayFabSettings.staticSettings;
-            if (!context.IsEntityLoggedIn()) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,"Must be logged in to call this method");
-
-
-            PlayFabHttp.MakeApiCall("/Inventory/GetMicrosoftStoreAccessTokens", request, AuthType.EntityToken, resultCallback, errorCallback, customData, extraHeaders, context, callSettings);
-        }
-
-        /// <summary>
         /// Get transaction history for a player. Up to 250 Events can be returned at once. You can use continuation tokens to
         /// paginate through results that return greater than the limit. Getting transaction history has a lower RPS limit than
         /// getting a Player's inventory with Player Entities having a limit of 30 requests in 300 seconds.
@@ -447,6 +437,19 @@ namespace PlayFab
         /// <summary>
         /// Redeem items.
         /// </summary>
+        public static void RedeemAppleAppStoreWithJwsInventoryItems(RedeemAppleAppStoreWithJwsInventoryItemsRequest request, Action<RedeemAppleAppStoreWithJwsInventoryItemsResponse> resultCallback, Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null)
+        {
+            var context = (request == null ? null : request.AuthenticationContext) ?? PlayFabSettings.staticPlayer;
+            var callSettings = PlayFabSettings.staticSettings;
+            if (!context.IsEntityLoggedIn()) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,"Must be logged in to call this method");
+
+
+            PlayFabHttp.MakeApiCall("/Inventory/RedeemAppleAppStoreWithJwsInventoryItems", request, AuthType.EntityToken, resultCallback, errorCallback, customData, extraHeaders, context, callSettings);
+        }
+
+        /// <summary>
+        /// Redeem items.
+        /// </summary>
         public static void RedeemGooglePlayInventoryItems(RedeemGooglePlayInventoryItemsRequest request, Action<RedeemGooglePlayInventoryItemsResponse> resultCallback, Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null)
         {
             var context = (request == null ? null : request.AuthenticationContext) ?? PlayFabSettings.staticPlayer;
@@ -458,7 +461,7 @@ namespace PlayFab
         }
 
         /// <summary>
-        /// Redeem items.
+        /// Redeem items from the Microsoft Store. Supported entitlement types are Developer Manager Consumable and Durable.
         /// </summary>
         public static void RedeemMicrosoftStoreInventoryItems(RedeemMicrosoftStoreInventoryItemsRequest request, Action<RedeemMicrosoftStoreInventoryItemsResponse> resultCallback, Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null)
         {
@@ -653,7 +656,7 @@ namespace PlayFab
         }
 
         /// <summary>
-        /// Update the metadata for an item in the working catalog.
+        /// Update the metadata for an item in the working catalog. Note: SAS tokens provided are valid for 1 hour.
         /// </summary>
         public static void UpdateDraftItem(UpdateDraftItemRequest request, Action<UpdateDraftItemResponse> resultCallback, Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null)
         {
